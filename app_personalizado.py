@@ -24,7 +24,7 @@ rampa = f"{quadrante} - {rampa_num}"
 tipo_servico = st.selectbox("Tipo de Serviço", ["Motor Completo", "Motor Parcial", "Outros Serviços"])
 foto = st.file_uploader("Envie a foto da placa", type=["jpg", "png", "jpeg"])
 
-reader = easyocr.Reader(['pt'], gpu=False)  # Força modo CPU
+reader = easyocr.Reader(['pt'])
 
 def extrair_placa(textos):
     ignorar = {"BRASIL", "BR", "MERCOSUL"}
@@ -32,8 +32,10 @@ def extrair_placa(textos):
     st.write("Textos reconhecidos pelo OCR:", partes)
 
     for parte in partes:
+        # Placa Mercosul de moto (ABC1A23)
         if re.match(r"^[A-Z]{3}[0-9][A-Z][0-9]{2}$", parte):
             return f"{parte[:3]}-{parte[3:]}"
+        # Placa antiga (ABC1234)
         elif re.match(r"^[A-Z]{3}[0-9]{4}$", parte):
             return f"{parte[:3]}-{parte[3:]}"
     
@@ -41,9 +43,9 @@ def extrair_placa(textos):
         parte1 = partes[i]
         parte2 = partes[i + 1]
         if re.match(r"^[A-Z]{3}$", parte1):
-            if re.match(r"^[0-9][A-Z][0-9]{2}$", parte2):
+            if re.match(r"^[0-9][A-Z][0-9]{2}$", parte2):  # Mercosul
                 return f"{parte1}-{parte2}"
-            elif re.match(r"^[0-9]{4}$", parte2):
+            elif re.match(r"^[0-9]{4}$", parte2):  # Antiga
                 return f"{parte1}-{parte2}"
     
     return None
